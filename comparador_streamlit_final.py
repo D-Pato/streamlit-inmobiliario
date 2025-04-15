@@ -86,3 +86,4 @@ with col4:
     st.write(f"Utilidad total: ${utilidad_b:,.0f}")
     st.write(f"Evaluación: {eva_b}")
 
+
