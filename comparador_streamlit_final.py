@@ -17,13 +17,13 @@ def calcular_dividendo(monto, tasa_anual, anios):
     cuotas = anios * 12
     return (monto * tasa_mensual * (1 + tasa_mensual) ** cuotas) / ((1 + tasa_mensual) ** cuotas - 1)
 
-def semaforo(roi, cashflow):
+def semaforo_simple(roi, cashflow):
     if roi >= 8 and cashflow > 0:
-        return "🟢 Buena inversión"
+        return "Buena inversión"
     elif 5 <= roi < 8 or -50000 < cashflow <= 0:
-        return "🟡 Regular, requiere análisis"
+        return "Regular, requiere análisis"
     else:
-        return "🔴 Riesgosa o poco rentable"
+        return "Riesgosa o poco rentable"
 
 col1, col2 = st.columns(2)
 
@@ -51,8 +51,8 @@ roi_b = (cashflow_b * 12) / pie_b * 100
 valor_final_a = precio_a * ((1 + valorizacion_a) ** anios)
 valor_final_b = precio_b * ((1 + valorizacion_b) ** anios)
 
-eva_a = semaforo(roi_a, cashflow_a)
-eva_b = semaforo(roi_b, cashflow_b)
+eva_a = semaforo_simple(roi_a, cashflow_a)
+eva_b = semaforo_simple(roi_b, cashflow_b)
 
 st.markdown("### Resultados Comparativos")
 col3, col4 = st.columns(2)
