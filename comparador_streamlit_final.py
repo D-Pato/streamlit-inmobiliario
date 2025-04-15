@@ -68,81 +68,17 @@ with col3:
 with col4:
     st.markdown(f"**Depto B**\n- Dividendo: ${dividendo_b:,.0f}\n- Cashflow: ${cashflow_b:,.0f}\n- ROI: {roi_b:.2f}% anual\n- Valor Venta: ${valor_final_b:,.0f}\n- Utilidad: ${utilidad_b:,.0f}\n- Evaluación: {eva_b}")
 
-# Gráficos compactos
+# Gráficos compactos con valores sobre las barras
 def mostrar_bar(titulo, etiquetas, valores, colores, ylabel):
     fig, ax = plt.subplots(figsize=(4, 3))
-    ax.bar(etiquetas, valores, color=colores)
+    bars = ax.bar(etiquetas, valores, color=colores)
     ax.set_ylabel(ylabel)
     ax.set_title(titulo)
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2, height, f'{height:,.0f}', ha='center', va='bottom', fontsize=9)
     st.pyplot(fig)
 
 mostrar_bar("ROI (%)", ["Depto A", "Depto B"], [roi_a, roi_b], ["blue", "orange"], "ROI")
 mostrar_bar("Cashflow mensual", ["Depto A", "Depto B"], [cashflow_a, cashflow_b], ["green", "red"], "$")
 mostrar_bar("Utilidad total estimada", ["Depto A", "Depto B"], [utilidad_a, utilidad_b], ["purple", "brown"], "$")
-
-# PDF
-def generar_pdf():
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, "Reporte de Comparación Inmobiliaria", ln=True, align='C')
-    pdf.ln(10)
-    pdf.cell(200, 10, "Departamento A", ln=True)
-    pdf.multi_cell(200, 8, f"Precio: ${precio_a:,.0f}\nPie: ${pie_a:,.0f}\nArriendo: ${arriendo_a:,.0f}\nROI: {roi_a:.2f}%\nCashflow: ${cashflow_a:,.0f}\nValor Venta: ${valor_final_a:,.0f}\nUtilidad: ${utilidad_a:,.0f}\nEvaluación: {eva_a}")
-    pdf.ln(5)
-    pdf.cell(200, 10, "Departamento B", ln=True)
-    pdf.multi_cell(200, 8, f"Precio: ${precio_b:,.0f}\nPie: ${pie_b:,.0f}\nArriendo: ${arriendo_b:,.0f}\nROI: {roi_b:.2f}%\nCashflow: ${cashflow_b:,.0f}\nValor Venta: ${valor_final_b:,.0f}\nUtilidad: ${utilidad_b:,.0f}\nEvaluación: {eva_b}")
-    return pdf.output(dest="S").encode("latin-1")
-
-if st.button("📄 Descargar análisis en PDF"):
-    pdf_bytes = generar_pdf()
-    b64 = base64.b64encode(pdf_bytes).decode()
-    href = f'<a href="data:application/octet-stream;base64,{b64}" download="analisis_inversion.pdf">Haz clic aquí para descargar PDF</a>'
-    st.markdown(href, unsafe_allow_html=True)
-
-# Excel
-df = pd.DataFrame({
-    "Depto": ["A", "B"],
-    "Precio": [precio_a, precio_b],
-    "Pie": [pie_a, pie_b],
-    "Arriendo": [arriendo_a, arriendo_b],
-    "Dividendo": [dividendo_a, dividendo_b],
-    "Cashflow": [cashflow_a, cashflow_b],
-    "ROI": [roi_a, roi_b],
-    "Valor Venta": [valor_final_a, valor_final_b],
-    "Utilidad": [utilidad_a, utilidad_b],
-    "Evaluación": [eva_a, eva_b]
-})
-
-excel_buffer = BytesIO()
-with pd.ExcelWriter(excel_buffer, engine="xlsxwriter") as writer:
-    df.to_excel(writer, index=False)
-
-st.download_button(
-    label="📊 Descargar Excel",
-    data=excel_buffer.getvalue(),
-    file_name="comparacion_inversion.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-)
-
-# Historial
-if "historial" not in st.session_state:
-    st.session_state.historial = []
-
-sim_actual = {
-    "ROI A": round(roi_a, 2),
-    "ROI B": round(roi_b, 2),
-    "Cashflow A": round(cashflow_a),
-    "Cashflow B": round(cashflow_b),
-    "Utilidad A": round(utilidad_a),
-    "Utilidad B": round(utilidad_b),
-    "Eval A": eva_a,
-    "Eval B": eva_b
-}
-
-if sim_actual not in st.session_state.historial:
-    st.session_state.historial.insert(0, sim_actual)
-
-st.markdown("### 🧾 Historial de simulaciones")
-for i, h in enumerate(st.session_state.historial[:5]):
-    st.markdown(f"- ROI A: {h['ROI A']}% | ROI B: {h['ROI B']}% | Cashflow A: ${h['Cashflow A']} | Cashflow B: ${h['Cashflow B']} | Utilidad A: ${h['Utilidad A']} | Utilidad B: ${h['Utilidad B']} | A: {h['Eval A']} | B: {h['Eval B']}")
