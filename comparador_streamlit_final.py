@@ -7,7 +7,6 @@ from io import BytesIO
 
 st.set_page_config(page_title="DON'T PATO - Inversión Inmobiliaria", layout="wide")
 
-# Logo y eslogan
 st.image("perfil_pato.png", width=200)
 st.markdown("<h2 style='text-align: center;'>Simula. Compara. Invierte con inteligencia.</h2>", unsafe_allow_html=True)
 
@@ -69,9 +68,9 @@ with col3:
 with col4:
     st.markdown(f"**Depto B**\n- Dividendo: ${dividendo_b:,.0f}\n- Cashflow: ${cashflow_b:,.0f}\n- ROI: {roi_b:.2f}% anual\n- Valor Venta: ${valor_final_b:,.0f}\n- Utilidad: ${utilidad_b:,.0f}\n- Evaluación: {eva_b}")
 
-# Gráficos
+# Gráficos compactos
 def mostrar_bar(titulo, etiquetas, valores, colores, ylabel):
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(4, 3))
     ax.bar(etiquetas, valores, color=colores)
     ax.set_ylabel(ylabel)
     ax.set_title(titulo)
