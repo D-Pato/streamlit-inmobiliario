@@ -58,20 +58,28 @@ with col4:
     st.markdown(f"**Depto B**\n- Dividendo: ${dividendo_b:,.0f}\n- Cashflow: ${cashflow_b:,.0f}\n- ROI: {roi_b:.2f}% anual\n- Valor Proyectado: ${valor_final_b:,.0f}")
     st.markdown(f"**Evaluación:** {semaforo(roi_b, cashflow_b)}")
 
-# Gráfico comparativo
-st.markdown("### Comparación Gráfica: ROI, Cashflow y Valor Proyectado")
-fig, ax = plt.subplots(figsize=(8, 4))
-categorias = ["ROI (%)", "Cashflow ($)", "Valor Proyectado ($)"]
-valores_a = [roi_a, cashflow_a, valor_final_a]
-valores_b = [roi_b, cashflow_b, valor_final_b]
+st.markdown("### Comparaciones Visuales")
 
-x = range(len(categorias))
-bar_width = 0.35
-ax.bar([i - bar_width/2 for i in x], valores_a, width=bar_width, label="Depto A")
-ax.bar([i + bar_width/2 for i in x], valores_b, width=bar_width, label="Depto B")
-ax.set_xticks(x)
-ax.set_xticklabels(categorias)
-ax.set_ylabel("Valor")
-ax.set_title("Comparación entre Departamentos")
-ax.legend()
-st.pyplot(fig)
+# Gráfico ROI
+st.subheader("📊 Comparación ROI (%)")
+fig1, ax1 = plt.subplots()
+ax1.bar(["Depto A", "Depto B"], [roi_a, roi_b], color=["blue", "orange"])
+ax1.set_ylabel("ROI %")
+ax1.set_title("Retorno sobre la Inversión")
+st.pyplot(fig1)
+
+# Gráfico Cashflow
+st.subheader("📊 Comparación Cashflow Mensual ($)")
+fig2, ax2 = plt.subplots()
+ax2.bar(["Depto A", "Depto B"], [cashflow_a, cashflow_b], color=["green", "red"])
+ax2.set_ylabel("Cashflow ($)")
+ax2.set_title("Flujo de Caja Mensual")
+st.pyplot(fig2)
+
+# Gráfico Valor Proyectado
+st.subheader("📊 Comparación Valor Proyectado ($)")
+fig3, ax3 = plt.subplots()
+ax3.bar(["Depto A", "Depto B"], [valor_final_a, valor_final_b], color=["purple", "brown"])
+ax3.set_ylabel("Valor Proyectado ($)")
+ax3.set_title(f"Valor estimado tras {anios} años")
+st.pyplot(fig3)
