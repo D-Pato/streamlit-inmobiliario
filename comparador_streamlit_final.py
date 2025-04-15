@@ -1,6 +1,8 @@
 
 import streamlit as st
 import matplotlib.pyplot as plt
+from fpdf import FPDF
+import base64
 
 st.set_page_config(page_title="Comparador Inmobiliario", layout="wide")
 st.title("🏠 Comparador de Inversión Inmobiliaria")
@@ -49,37 +51,57 @@ roi_b = (cashflow_b * 12) / pie_b * 100
 valor_final_a = precio_a * ((1 + valorizacion_a) ** anios)
 valor_final_b = precio_b * ((1 + valorizacion_b) ** anios)
 
+eva_a = semaforo(roi_a, cashflow_a)
+eva_b = semaforo(roi_b, cashflow_b)
+
 st.markdown("### Resultados Comparativos")
 col3, col4 = st.columns(2)
 with col3:
     st.markdown(f"**Depto A**\n- Dividendo: ${dividendo_a:,.0f}\n- Cashflow: ${cashflow_a:,.0f}\n- ROI: {roi_a:.2f}% anual\n- Valor Proyectado: ${valor_final_a:,.0f}")
-    st.markdown(f"**Evaluación:** {semaforo(roi_a, cashflow_a)}")
+    st.markdown(f"**Evaluación:** {eva_a}")
 with col4:
     st.markdown(f"**Depto B**\n- Dividendo: ${dividendo_b:,.0f}\n- Cashflow: ${cashflow_b:,.0f}\n- ROI: {roi_b:.2f}% anual\n- Valor Proyectado: ${valor_final_b:,.0f}")
-    st.markdown(f"**Evaluación:** {semaforo(roi_b, cashflow_b)}")
+    st.markdown(f"**Evaluación:** {eva_b}")
 
-st.markdown("### Comparaciones Visuales")
+# Generar PDF
+def generar_pdf():
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
 
-# Gráfico ROI
-st.subheader("📊 Comparación ROI (%)")
-fig1, ax1 = plt.subplots()
-ax1.bar(["Depto A", "Depto B"], [roi_a, roi_b], color=["blue", "orange"])
-ax1.set_ylabel("ROI %")
-ax1.set_title("Retorno sobre la Inversión")
-st.pyplot(fig1)
+    pdf.cell(200, 10, txt="Reporte de Comparación Inmobiliaria", ln=True, align='C')
+    pdf.ln(10)
 
-# Gráfico Cashflow
-st.subheader("📊 Comparación Cashflow Mensual ($)")
-fig2, ax2 = plt.subplots()
-ax2.bar(["Depto A", "Depto B"], [cashflow_a, cashflow_b], color=["green", "red"])
-ax2.set_ylabel("Cashflow ($)")
-ax2.set_title("Flujo de Caja Mensual")
-st.pyplot(fig2)
+    pdf.cell(200, 10, txt="Departamento A", ln=True)
+    pdf.ln(2)
+    pdf.multi_cell(200, 8, txt=(
+        f"Precio: ${precio_a:,.0f}\n"
+        f"Pie: ${pie_a:,.0f}\n"
+        f"Arriendo: ${arriendo_a:,.0f}\n"
+        f"ROI: {roi_a:.2f}%\n"
+        f"Cashflow: ${cashflow_a:,.0f}\n"
+        f"Valor Proyectado: ${valor_final_a:,.0f}\n"
+        f"Evaluación: {eva_a}"
+    ))
 
-# Gráfico Valor Proyectado
-st.subheader("📊 Comparación Valor Proyectado ($)")
-fig3, ax3 = plt.subplots()
-ax3.bar(["Depto A", "Depto B"], [valor_final_a, valor_final_b], color=["purple", "brown"])
-ax3.set_ylabel("Valor Proyectado ($)")
-ax3.set_title(f"Valor estimado tras {anios} años")
-st.pyplot(fig3)
+    pdf.ln(5)
+    pdf.cell(200, 10, txt="Departamento B", ln=True)
+    pdf.ln(2)
+    pdf.multi_cell(200, 8, txt=(
+        f"Precio: ${precio_b:,.0f}\n"
+        f"Pie: ${pie_b:,.0f}\n"
+        f"Arriendo: ${arriendo_b:,.0f}\n"
+        f"ROI: {roi_b:.2f}%\n"
+        f"Cashflow: ${cashflow_b:,.0f}\n"
+        f"Valor Proyectado: ${valor_final_b:,.0f}\n"
+        f"Evaluación: {eva_b}"
+    ))
+
+    return pdf.output(dest='S').encode('latin-1')
+
+if st.button("📄 Descargar análisis en PDF"):
+    pdf_bytes = generar_pdf()
+    b64 = base64.b64encode(pdf_bytes).decode()
+    href = f'<a href="data:application/octet-stream;base64,{b64}" download="analisis_inversion.pdf">Haz clic aquí para descargar tu PDF 📄</a>'
+    st.markdown(href, unsafe_allow_html=True)
+
