@@ -15,6 +15,14 @@ def calcular_dividendo(monto, tasa_anual, anios):
     cuotas = anios * 12
     return (monto * tasa_mensual * (1 + tasa_mensual) ** cuotas) / ((1 + tasa_mensual) ** cuotas - 1)
 
+def semaforo(roi, cashflow):
+    if roi >= 8 and cashflow > 0:
+        return "🟢 Buena inversión"
+    elif 5 <= roi < 8 or -50000 < cashflow <= 0:
+        return "🟡 Regular, requiere análisis"
+    else:
+        return "🔴 Riesgosa o poco rentable"
+
 col1, col2 = st.columns(2)
 
 with col1:
@@ -38,7 +46,6 @@ cashflow_a = arriendo_a - dividendo_a
 cashflow_b = arriendo_b - dividendo_b
 roi_a = (cashflow_a * 12) / pie_a * 100
 roi_b = (cashflow_b * 12) / pie_b * 100
-
 valor_final_a = precio_a * ((1 + valorizacion_a) ** anios)
 valor_final_b = precio_b * ((1 + valorizacion_b) ** anios)
 
@@ -46,8 +53,10 @@ st.markdown("### Resultados Comparativos")
 col3, col4 = st.columns(2)
 with col3:
     st.markdown(f"**Depto A**\n- Dividendo: ${dividendo_a:,.0f}\n- Cashflow: ${cashflow_a:,.0f}\n- ROI: {roi_a:.2f}% anual\n- Valor Proyectado: ${valor_final_a:,.0f}")
+    st.markdown(f"**Evaluación:** {semaforo(roi_a, cashflow_a)}")
 with col4:
     st.markdown(f"**Depto B**\n- Dividendo: ${dividendo_b:,.0f}\n- Cashflow: ${cashflow_b:,.0f}\n- ROI: {roi_b:.2f}% anual\n- Valor Proyectado: ${valor_final_b:,.0f}")
+    st.markdown(f"**Evaluación:** {semaforo(roi_b, cashflow_b)}")
 
 # Gráfico comparativo
 st.markdown("### Comparación Gráfica: ROI, Cashflow y Valor Proyectado")
