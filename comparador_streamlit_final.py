@@ -1,8 +1,6 @@
 
 import streamlit as st
 import matplotlib.pyplot as plt
-import pandas as pd
-from io import BytesIO
 
 st.set_page_config(page_title="Comparador Inmobiliario", layout="wide")
 st.title("🏠 Comparador de Inversión Inmobiliaria")
@@ -41,53 +39,30 @@ cashflow_b = arriendo_b - dividendo_b
 roi_a = (cashflow_a * 12) / pie_a * 100
 roi_b = (cashflow_b * 12) / pie_b * 100
 
+valor_final_a = precio_a * ((1 + valorizacion_a) ** anios)
+valor_final_b = precio_b * ((1 + valorizacion_b) ** anios)
+
 st.markdown("### Resultados Comparativos")
 col3, col4 = st.columns(2)
 with col3:
-    st.markdown(f"**Depto A**\n- Dividendo: ${dividendo_a:,.0f}\n- Cashflow: ${cashflow_a:,.0f}\n- ROI: {roi_a:.2f}% anual")
+    st.markdown(f"**Depto A**\n- Dividendo: ${dividendo_a:,.0f}\n- Cashflow: ${cashflow_a:,.0f}\n- ROI: {roi_a:.2f}% anual\n- Valor Proyectado: ${valor_final_a:,.0f}")
 with col4:
-    st.markdown(f"**Depto B**\n- Dividendo: ${dividendo_b:,.0f}\n- Cashflow: ${cashflow_b:,.0f}\n- ROI: {roi_b:.2f}% anual")
+    st.markdown(f"**Depto B**\n- Dividendo: ${dividendo_b:,.0f}\n- Cashflow: ${cashflow_b:,.0f}\n- ROI: {roi_b:.2f}% anual\n- Valor Proyectado: ${valor_final_b:,.0f}")
 
-# Valorización
-valores_a = [precio_a]
-valores_b = [precio_b]
-for _ in range(anios):
-    valores_a.append(valores_a[-1] * (1 + valorizacion_a))
-    valores_b.append(valores_b[-1] * (1 + valorizacion_b))
+# Gráfico comparativo
+st.markdown("### Comparación Gráfica: ROI, Cashflow y Valor Proyectado")
+fig, ax = plt.subplots(figsize=(8, 4))
+categorias = ["ROI (%)", "Cashflow ($)", "Valor Proyectado ($)"]
+valores_a = [roi_a, cashflow_a, valor_final_a]
+valores_b = [roi_b, cashflow_b, valor_final_b]
 
-# DataFrame para Excel
-df = pd.DataFrame({
-    "Año": list(range(anios + 1)),
-    "Depto A ($)": valores_a,
-    "Depto B ($)": valores_b
-})
-
-# Agregar resultados generales al final del Excel
-resumen = pd.DataFrame({
-    "Concepto": ["Dividendo A", "Cashflow A", "ROI A", "Dividendo B", "Cashflow B", "ROI B"],
-    "Valor": [dividendo_a, cashflow_a, roi_a, dividendo_b, cashflow_b, roi_b]
-})
-
-# Botón para descargar Excel
-output = BytesIO()
-with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-    df.to_excel(writer, sheet_name="Valorización", index=False)
-    resumen.to_excel(writer, sheet_name="Resumen", index=False)
-    writer.close()
-st.download_button(
-    label="📥 Descargar resultados en Excel",
-    data=output.getvalue(),
-    file_name="analisis_inmobiliario.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-)
-
-# Gráfico
-st.markdown("### Proyección de Valorización")
-fig, ax = plt.subplots()
-ax.plot(range(anios + 1), valores_a, label="Depto A", linewidth=2)
-ax.plot(range(anios + 1), valores_b, label="Depto B", linestyle="--", linewidth=2)
-ax.set_xlabel("Años")
-ax.set_ylabel("Valor en $")
+x = range(len(categorias))
+bar_width = 0.35
+ax.bar([i - bar_width/2 for i in x], valores_a, width=bar_width, label="Depto A")
+ax.bar([i + bar_width/2 for i in x], valores_b, width=bar_width, label="Depto B")
+ax.set_xticks(x)
+ax.set_xticklabels(categorias)
+ax.set_ylabel("Valor")
+ax.set_title("Comparación entre Departamentos")
 ax.legend()
-ax.grid(True)
 st.pyplot(fig)
